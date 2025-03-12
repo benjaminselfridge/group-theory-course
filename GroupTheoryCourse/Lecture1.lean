@@ -1,6 +1,10 @@
+-- Group Theory Lecture 1. Groups
+--
+-- Definition of a group. Examples of groups. A few basic group lemmas.
+---------------------------------
+
 import GroupTheoryCourse.Utils
 import GroupTheoryCourse.Prerequisites
-
 
 -- DEFINITION.
 --------------
@@ -30,16 +34,16 @@ class AddGroup (G : Type u) extends
   /- an additive inverse, -[·] : G → G     -/
     Neg G
   where
-  /- 1. Addition is associative: -/
+  /- 1. Addition is associative:   -/
     protected add_assoc' (a b c : G) :  (a + b) + c  =  a + (b + c)
-  /- 2. 0 is a left identity:          -/
+  /- 2. 0 is a left identity:      -/
     protected zero_add' (a : G) :              0 + a  =  a
-  /- 3. -a is a left inverse of a.    -/
+  /- 3. -a is a left inverse of a. -/
     protected neg_add' (a : G) :              -a + a  =  0
 
 ---->>Notation<<----
 -- * The `mul` operation `* : G × G → G` is left-associative, so when we write `a * b * c`, we mean
---   `(a * b) * c`. I will mostly omit parentheses unless they are necessary.
+--   `(a * b) * c`.
 -- * Same as above, but for `+`.
 ---->>--------<<----
 
@@ -64,8 +68,8 @@ structure Perm (α : Type u) where
 
 namespace Perm
 
--- [TODO] fill the rest of these examples in, or replace with Mathlib.
-instance instMul : Mul (Perm α) where
+-- [TODO] replace with Mathlib.
+instance instMul {α} : Mul (Perm α) where
   mul σ τ := Perm.mk (σ.map ∘ τ.map) (τ.inv ∘ σ.inv)
     (by calc  ((τ.inv ∘ σ.inv) ∘ σ.map ∘ τ.map) = τ.inv ∘ (σ.inv ∘ σ.map) ∘ τ.map := by definition
               _                                 = τ.inv ∘ id ∘ τ.map := by rw [σ.inv_map]
@@ -73,17 +77,17 @@ instance instMul : Mul (Perm α) where
               _                                 = id := by rw [τ.inv_map])
     (by sorry)
 
-instance instOne : One (Perm α) where
+instance instOne {α} : One (Perm α) where
   one := Perm.mk id id
     (by definition)
     (by definition)
 
-instance instInv : Inv (Perm α) where
+instance instInv {α} : Inv (Perm α) where
   inv σ := Perm.mk σ.inv σ.map
     (by sorry)
     (by sorry)
 
-instance instGroup : Group (Perm α) where
+instance instGroup {α} : Group (Perm α) where
   mul_assoc' σ τ ρ := by
     sorry
   one_mul' σ := by
@@ -94,20 +98,8 @@ instance instGroup : Group (Perm α) where
 end Perm
 
 /- Example 3: ℤ mod n -/
-def ZMod : ℕ → Type
-  | 0 => ℤ
-  | n + 1 => Fin (n + 1)
+-- [TODO]
 
-namespace ZMod
-instance instAddGroup : AddGroup (ZMod n) where
-  add := Nat.casesOn n (@Add.add Int _) fun n => @Add.add (Fin n.succ) _
-  zero := Nat.casesOn n (0 : Int) fun n => (0 : Fin n.succ)
-  neg := Nat.casesOn n (@Neg.neg Int _) fun n => @Neg.neg (Fin n.succ) _
-  add_assoc' := Nat.casesOn n (@AddGroup.add_assoc' Int _) fun n => sorry -- @Fin.add_ (Fin n.succ) _
-  zero_add' := sorry
-  neg_add' := sorry
-
-end ZMod
 end Examples
 
 namespace Group
@@ -127,15 +119,14 @@ variable {G H} [Group G] [Group H]
 --                (Aₙ : Tₙ)
 --              :----------
 --                C
--- := by
---   <proof>
+-- := <proof>
 ------------------------------------------------------------
 -- ```
 
 -- Group laws
 ------------------------------------------------------------
-                /- multiplication is associative. -/
-                lemma mul_assoc
+/- multiplication is associative. -/
+lemma mul_assoc
                   (a b c : G)
                 :--------------------------
                   a * b * c = a * (b * c)
@@ -212,8 +203,6 @@ macro "group" : tactic =>
 -- We can use our new tactic to blast away simple equalities:
 example (a b c d: G) : a * (b * b⁻¹) * c * (d * 1) * d⁻¹ * c⁻¹ * a⁻¹ = 1 :=
   by group
-
--- We can reassociate the above expression however we want
 
 -- More lemmas
 --------------

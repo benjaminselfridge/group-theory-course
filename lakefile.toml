@@ -8,3 +8,7 @@ name = "GroupTheoryCourse"
 [[lean_exe]]
 name = "group-theory-course"
 root = "Main"
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
