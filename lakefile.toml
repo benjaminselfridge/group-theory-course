@@ -1,0 +1,10 @@
+name = "group-theory-course"
+version = "0.1.0"
+defaultTargets = ["group-theory-course"]
+
+[[lean_lib]]
+name = "GroupTheoryCourse"
+
+[[lean_exe]]
+name = "group-theory-course"
+root = "Main"
