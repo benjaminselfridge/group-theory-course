@@ -1,11 +1,11 @@
--- Group Theory Lecture 1. Groups
+-- Groups
 --
--- Definition of a group. Examples of groups. A few basic group lemmas.
+-- Definition of a group. A few basic group lemmas.
 ---------------------------------
 
 import GroupTheoryCourse.Utils
 import GroupTheoryCourse.Prerequisites
-
+--------------------------------------------------------------------------------
 -- DEFINITION.
 --------------
 /- A *Group* is a type G equipped with: -/
@@ -18,11 +18,11 @@ class Group (G : Type u) extends
     Inv G
   where
   /- 1. Multiplication is associative: -/
-    protected mul_assoc' (a b c : G) :  (a * b) * c  =  a * (b * c)
+    mul_assoc' (a b c : G) :  (a * b) * c  =  a * (b * c)
   /- 2. 1 is a left identity:          -/
-    protected one_mul' (a : G) :              1 * a  =  a
+    one_mul' (a : G) :              1 * a  =  a
   /- 3. a⁻¹ is a left inverse of a.    -/
-    protected inv_mul' (a : G) :            a⁻¹ * a  =  1
+    inv_mul' (a : G) :            a⁻¹ * a  =  1
 
 /- An *AddGroup* is just a group with additive symbols rather than multiplicative ones, i.e it is a
    type G equipped with: -/
@@ -35,72 +35,17 @@ class AddGroup (G : Type u) extends
     Neg G
   where
   /- 1. Addition is associative:   -/
-    protected add_assoc' (a b c : G) :  (a + b) + c  =  a + (b + c)
+    add_assoc' (a b c : G) :  (a + b) + c  =  a + (b + c)
   /- 2. 0 is a left identity:      -/
-    protected zero_add' (a : G) :              0 + a  =  a
+    zero_add' (a : G) :              0 + a  =  a
   /- 3. -a is a left inverse of a. -/
-    protected neg_add' (a : G) :              -a + a  =  0
+    neg_add' (a : G) :              -a + a  =  0
 
 ---->>Notation<<----
 -- * The `mul` operation `* : G × G → G` is left-associative, so when we write `a * b * c`, we mean
 --   `(a * b) * c`.
 -- * Same as above, but for `+`.
 ---->>--------<<----
-
----------------------
--- Examples of groups
-namespace Examples
-/- Example 1: Integers -/
-namespace Int
-instance instAdd' : AddGroup Int where
-  add_assoc' := Int.add_assoc
-  zero_add' := Int.zero_add
-  neg_add' := Int.add_left_neg
-end Int
-
-/- Example 2: Permutations -/
-structure Perm (α : Type u) where
-  map : α → α
-  inv : α → α
-
-  inv_map : inv ∘ map = id
-  map_inv : map ∘ inv = id
-
-namespace Perm
-
--- [TODO] replace with Mathlib.
-instance instMul {α} : Mul (Perm α) where
-  mul σ τ := Perm.mk (σ.map ∘ τ.map) (τ.inv ∘ σ.inv)
-    (by calc  ((τ.inv ∘ σ.inv) ∘ σ.map ∘ τ.map) = τ.inv ∘ (σ.inv ∘ σ.map) ∘ τ.map := by definition
-              _                                 = τ.inv ∘ id ∘ τ.map := by rw [σ.inv_map]
-              _                                 = τ.inv ∘ τ.map := by definition
-              _                                 = id := by rw [τ.inv_map])
-    (by sorry)
-
-instance instOne {α} : One (Perm α) where
-  one := Perm.mk id id
-    (by definition)
-    (by definition)
-
-instance instInv {α} : Inv (Perm α) where
-  inv σ := Perm.mk σ.inv σ.map
-    (by sorry)
-    (by sorry)
-
-instance instGroup {α} : Group (Perm α) where
-  mul_assoc' σ τ ρ := by
-    sorry
-  one_mul' σ := by
-    sorry
-  inv_mul' := by
-    sorry
-
-end Perm
-
-/- Example 3: ℤ mod n -/
--- [TODO]
-
-end Examples
 
 namespace Group
 
@@ -109,24 +54,31 @@ variable {G H} [Group G] [Group H]
 
 -- Group lemmas
 ---------------
--- Style of lemma presentation:
--- ```
+
+-- Mathematically important lemmas and theorems are presented in the following style:
 ------------------------------------------------------------
 --              /- Description of lemma. -/
 --              lemma lemma_name
---                (A₁ : T₁)
+--                (A₁ : T₁)    -- assumption 1
 --                ...
---                (Aₙ : Tₙ)
---              :----------
---                C
+--                (Aₙ : Tₙ)    -- assumption n
+--              :------------
+--                C            -- conclusion
 -- := <proof>
 ------------------------------------------------------------
--- ```
+-- The A₁, ..., Aₙ are just local variable names representing each assumption T₁. We usually read
+-- each assumption `A : T` as either
+--
+--             `a : G` <=====> "a is an element of type G"
+--
+-- or
+--
+--         `h : x = y` <=====> "h is a proof that x = y"
 
 -- Group laws
 ------------------------------------------------------------
 /- multiplication is associative. -/
-lemma mul_assoc
+                lemma mul_assoc
                   (a b c : G)
                 :--------------------------
                   a * b * c = a * (b * c)
@@ -246,6 +198,11 @@ example (a b c d: G) : a * (b * b⁻¹) * c * (d * 1) * d⁻¹ * c⁻¹ * a⁻¹
                 :--------------------
                   a⁻¹ = b ↔ a = b⁻¹
 := by sorry
-------------------------------------------------------------
+--------------------------------------------------------------------------------
+namespace Exercises
 
+-- Exercise 1.
+-- Fill in all of the `sorry`s in this file.
+
+end Exercises
 end Group
