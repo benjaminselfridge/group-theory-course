@@ -106,7 +106,14 @@ variable {G H} [Group G] [Group H]
                   (a : G)
                 :--------------
                   a * a⁻¹ = 1
-  := by sorry
+  := by
+    calc  a * a⁻¹ = 1 * (a * a⁻¹) := by rw [one_mul]
+          _       = (a⁻¹⁻¹ * a⁻¹) * (a * a⁻¹) := by rw [inv_mul]
+          _       = a⁻¹⁻¹ * (a⁻¹ * a) * a⁻¹ := by repeat rw [mul_assoc]
+          _       = a⁻¹⁻¹ * 1 * a⁻¹ := by rw [inv_mul]
+          _       = a⁻¹⁻¹ * (1 * a⁻¹) := by rw [mul_assoc]
+          _       = a⁻¹⁻¹ * a⁻¹ := by rw [one_mul]
+          _       = 1 := by rw [inv_mul]
 ------------------------------------------------------------
                 /- 1 is a right identity. -/
                 lemma mul_one
@@ -166,7 +173,10 @@ example (a b c d: G) : a * (b * b⁻¹) * c * (d * 1) * d⁻¹ * c⁻¹ * a⁻¹
                   (h : a * b = b)
                 :---------------------------
                   a = 1
-:= by sorry
+:= by
+  calc  a = a * b * b⁻¹ := by group
+        _ = b * b⁻¹     := by rw [h]
+        _ = 1           := by group
 ------------------------------------------------------------
                 /- Inverses are unique. -/
                 lemma inv_unique
@@ -192,13 +202,6 @@ example (a b c d: G) : a * (b * b⁻¹) * c * (d * 1) * d⁻¹ * c⁻¹ * a⁻¹
                   a = b
 := by sorry
 ------------------------------------------------------------
-
-                theorem eq_inv_iff_inv_eq
-                  (a b : G)
-                :--------------------
-                  a⁻¹ = b ↔ a = b⁻¹
-:= by sorry
---------------------------------------------------------------------------------
 namespace Exercises
 
 -- Exercise 1.

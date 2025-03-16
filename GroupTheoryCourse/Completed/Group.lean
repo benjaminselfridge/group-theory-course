@@ -1,7 +1,7 @@
--- Group Theory Lecture 1. Groups
+-- Groups
 --
 -- Definition of a group. A few basic group lemmas.
----------------------------------
+---------------------------------------------------
 
 import GroupTheoryCourse.Utils
 import GroupTheoryCourse.Prerequisites
@@ -230,18 +230,6 @@ example (a b c d: G) : a * (b * b⁻¹) * c * (d * 1) * d⁻¹ * c⁻¹ * a⁻¹
         _ = b * c * c⁻¹ := by rw [h]
         _ = b           := by group
 ------------------------------------------------------------
-
-                theorem eq_inv_iff_inv_eq
-                  (a b : G)
-                :--------------------
-                  a⁻¹ = b ↔ a = b⁻¹
-:= by
-  constructor <;> intro h
-  . calc  a = a⁻¹⁻¹ := by group
-          _ = b⁻¹   := by rw [h]
-  . calc  a⁻¹ = b⁻¹⁻¹ := by rw [h]
-          _   = b     := by group
---------------------------------------------------------------------------------
 namespace Exercises
 
 -- Exercise 1.

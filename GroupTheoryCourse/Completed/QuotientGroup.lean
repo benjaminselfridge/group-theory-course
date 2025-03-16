@@ -18,7 +18,8 @@ variable {G} [Group G]
   DEFINITION. For any A, B ⊆ G and any g ∈ G, define
       g * A = { g * a | a ∈ A }
       A * g = { a * g | a ∈ A }
-      A * B = { a * b | a ∈ A, b ∈ B }
+      A * B = { a * B | a ∈ A } = { A * b | b ∈ B }
+              { a * b | a ∈ A, b ∈ B }
       A⁻¹   = { a⁻¹   | a ∈ A }
 -/
 instance : HMul G (Set G) (Set G) where
@@ -162,22 +163,27 @@ instance : Inv (Set G) where
 -- Γ = {Γᵢ}ᵢ is a collection of subsets of G such that ⋃ᵢΓᵢ = G. Let's further suppose that Γ forms
 -- a group.
 --
--- Since Γ is a group, it has an identity element N ∈ Γ satisfying
+-- Since Γ is a group, it must have an identity element N ∈ Γ satisfying
 --
---   N * N = N, N⁻¹ = N
+--   N * N = N
 --
--- from the one_mul and inv_one laws; it also must satisfy (1 : G) ∈ N (exercise). Therefore, N
+-- and
+--
+--   N⁻¹ = N
+--
+-- from the one_mul and inv_one laws; N also must satisfy (1 : G) ∈ N (exercise). Therefore, N
 -- must be a *subgroup* of G. Furthermore, it must satisfy
 --
 --   A * N  =  A  =  N * A
 --
 -- for all A ∈ Γ. Since A = A * N, it can be shown that for every a ∈ A, we have A = a * N = N * a.
--- This means that A must be a *left coset* and a *right coset*:
+-- This motivates the definition of a *left coset* and *right coset* of a subgroup N:
 
 structure LCoset (N : Subgroup G) where
   uset : Set G
   is_nonempty : ∃ a, a ∈ uset
   is_lcoset (a : G) (ha : a ∈ uset) : uset = a * N.uset
+
 
 def lcoset (a : G) (N : Subgroup G) : LCoset N := LCoset.mk
   (a * N.uset)
@@ -290,11 +296,11 @@ instance instMul {N : Subgroup G} [Normal N] : Mul (LCoset N) where
     (by intro ab ⟨a, ha, b, hb, hab⟩
         have haN: aN.uset = a * N.uset := by apply LCoset.is_lcoset; exact ha
         have hbN: bN.uset = b * N.uset := by apply LCoset.is_lcoset; exact hb
-        rw [haN, hbN]
-        show a * N.uset * (b * N.uset) = ab * N.uset
+        rw [haN, hbN, hab]
+        show a * N.uset * (b * N.uset) = a * b * N.uset
         ext x; constructor <;> intro hx
         . have ⟨a', ⟨n₁, hn₁, ha'⟩, b', ⟨n₂, hn₂, hb'⟩, hx'⟩ := hx
-          rw [hx', ha', hb', hab]
+          rw [hx', ha', hb']
           show a * n₁ * (b * n₂) ∈ a * b * N.uset
           use b⁻¹ * n₁ * b * n₂; constructor
           . apply Subgroup.mul_mem
@@ -308,7 +314,7 @@ instance instMul {N : Subgroup G} [Normal N] : Mul (LCoset N) where
           . use 1; constructor; apply Subgroup.one_mem; group
           . use b * n; constructor
             . use n
-            . rw [hx', hab]; group)
+            . rw [hx']; group)
 
 instance instOne {N : Subgroup G} [Normal N] : One (LCoset N) where
   one := LCoset.mk N.uset
