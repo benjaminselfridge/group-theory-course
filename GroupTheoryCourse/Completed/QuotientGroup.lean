@@ -11,8 +11,6 @@ variable {G} [Group G]
 ------------------------------------------------------------
 -- Generalizing group operations to subsets
 -------------------------------------------
--- Next, we define multiplication and inversion for subsets of G.
-------------------------------------------------------------
 /-
   DEFINITION. For any A, B ⊆ G and any g ∈ G, define
       g * A = { g * a | a ∈ A }
@@ -322,15 +320,22 @@ macro "group_subset" : tactic =>
 -- Cosets
 ---------
 --
--- The above definitions and lemmas suggest a group-like structure on the *subsets* of G. Suppose
--- Γ = {Γᵢ}ᵢ is a collection of *nonempty subsets* of G. Let's further suppose that Γ forms a group.
+-- The above definitions and lemmas suggest a group-like structure on the subsets of G.
+--
+-- Let Γ = {Γᵢ}ᵢ be some collection of nonempty subsets of G; furthermore, suppose that the elements
+-- of Γ are closed under multiplication and inversion as defined above, and that those operations
+-- satisfy the group laws, thus making Γ a group.
 --
 -- Since Γ is a group, it must have an identity element N ∈ Γ satisfying
 --
 --   N * N = N, N⁻¹ = N
 --
--- from the one_mul and inv_one laws; N also must satisfy (1 : G) ∈ N (exercise). Therefore, N
--- must be a *subgroup* of G. Furthermore, it must satisfy
+-- from the one_mul and inv_one laws. N also must satisfy
+--
+--   (1 : G) ∈ N
+--
+-- (this is left as an exercise). Therefore, N must be a *subgroup* of G. Furthermore, by the group
+-- laws, it must be the case that
 --
 --   A * N  =  A  =  N * A
 --
@@ -382,37 +387,20 @@ instance instMul : Mul (Coset N) where
       use a * b; use a; constructor; exact ha; use b
     . calc  A.uset * B.uset * N.uset  = A.uset * (B.uset * N.uset) := by group_subset
             _                         = A.uset * B.uset := by rw [B.mul_subgroup]
-    . calc  N.uset * (A.uset * B.uset)  = N.uset * A.uset * B.uset  := by group_subset
-            _                           = A.uset * B.uset           := by rw [A.subgroup_mul]
-    . calc  A.uset * B.uset * (A.uset * B.uset)⁻¹ = A.uset * B.uset * (B.uset⁻¹ * A.uset⁻¹) := by
-              group_subset
-            _                                     = A.uset * (B.uset * B.uset⁻¹) * A.uset⁻¹ := by
-              group_subset
-            _                                     = A.uset * N.uset * A.uset⁻¹ := by
-              rw [B.mul_inv]
-            _                                     = A.uset * A.uset⁻¹ := by
-              rw [A.mul_subgroup]
-            _                                     = N.uset := by
-              rw [A.mul_inv]
-    . calc  (A.uset * B.uset)⁻¹ * (A.uset * B.uset) = B.uset⁻¹ * A.uset⁻¹ * (A.uset * B.uset) := by
-              group_subset
-            _                                       = B.uset⁻¹ * ((A.uset⁻¹ * A.uset) * B.uset) :=
-              by group_subset
-            _                                       = B.uset⁻¹ * (N.uset * B.uset) := by
-              rw [A.inv_mul]
-            _                                       = B.uset⁻¹ * B.uset := by
-              rw [B.subgroup_mul]
-            _                                       = N.uset := by
-              rw [B.inv_mul]
+    . calc  N.uset * (A.uset * B.uset)
+            = N.uset * A.uset * B.uset  := by group_subset
+          _ = A.uset * B.uset           := by rw [A.subgroup_mul]
+    . calc  A.uset * B.uset * (A.uset * B.uset)⁻¹
+            = A.uset * (B.uset * B.uset⁻¹) * A.uset⁻¹ := by group_subset
+          _ = N.uset := by rw [B.mul_inv, A.mul_subgroup, A.mul_inv]
+    . calc  (A.uset * B.uset)⁻¹ * (A.uset * B.uset)
+            = B.uset⁻¹ * ((A.uset⁻¹ * A.uset) * B.uset) := by group_subset
+          _ = N.uset := by rw [A.inv_mul, B.subgroup_mul, B.inv_mul]
 ------------------------------------------------------------
 instance instOne : One (Coset N) where
   one := by
-    apply Coset.mk N.uset
-    . use 1; apply Subgroup.one_mem
-    . group_subset
-    . group_subset
-    . group_subset
-    . group_subset
+    apply Coset.mk N.uset; use 1; apply Subgroup.one_mem
+    repeat group_subset
 ------------------------------------------------------------
 instance instInv : Inv (Coset N) where
   inv A := by
@@ -442,8 +430,8 @@ instance instGroup : Group (Coset N) where
     show A.uset⁻¹ * A.uset = N.uset
     apply A.inv_mul
 ------------------------------------------------------------
--- Now, it turns out that given any element a of a coset A of N, we can show that a *conjugates* n,
--- or a * N.uset * a⁻¹ = N.uset:
+-- Now, it turns out that given a coset A of a subgroup N, and any element a ∈ A, we can show that a
+-- *conjugates* N, or a * N.uset * a⁻¹ = N.uset:
 ------------------------------------------------------------
                 theorem Coset_elt_conj_subgroup
                   (A : Coset N) (a : G) (ha : a ∈ A.uset)
@@ -496,7 +484,30 @@ instance instGroup : Group (Coset N) where
   simp [Coset_of_conjugate]
   use 1; constructor; apply Subgroup.one_mem; group
 ------------------------------------------------------------
-
+-- The set of all conjugates of N is called the *normalizer* of N.
+------------------------------------------------------------
+def normalizer (N : Subgroup G) : Set G :=
+  { a : G | a * N.uset * a⁻¹ = N.uset }
+------------------------------------------------------------
+-- In other words, the normalizer of a subgroup N is both:
+-- 1) the set of all conjugates of N (by definition)
+-- 2) the elements of G which belong to a coset of N (by Coset_of_conjugate)
+--
+-- Unsurprisingly, the normalizer is also a subgroup:
+------------------------------------------------------------
+def Normalizer (N : Subgroup G) : Subgroup G := by
+  apply Subgroup.mk (normalizer N)
+  . intro a b ha hb
+    dsimp [normalizer]
+    calc  a * b * N.uset * (a * b)⁻¹  = a * (b * N.uset * b⁻¹) * a⁻¹ := by group_subset
+          _                           = N.uset := by rw [hb, ha]
+  . dsimp [normalizer]
+    group_subset
+  . intro a ha
+    show a⁻¹ * N.uset * a⁻¹⁻¹ = N.uset
+    calc  a⁻¹ * N.uset * a⁻¹⁻¹  = a⁻¹ * (a * N.uset * a⁻¹) * a⁻¹⁻¹ := by rw [ha]
+          _                     = N.uset := by group_subset
+------------------------------------------------------------
 namespace Exercises
 
 -- Exercise 1.

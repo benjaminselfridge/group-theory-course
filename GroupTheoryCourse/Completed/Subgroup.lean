@@ -9,10 +9,9 @@ import Mathlib.Data.Set.SymmDiff
 ------------------------------------------------------------
 variable {G} [Group G]
 
--- DEFINITION.
-/- A *subgroup* is -/
+/- DEFINITION. A *subgroup* is -/
 structure Subgroup (G : Type u) [Group G] where
-  /- a set of elements from a group (its "underlying set" or "uset")-/
+  /- a set of elements from a group (its "underlying set" or "uset") -/
     uset : Set G
 
   -- satisfying:
@@ -29,16 +28,10 @@ structure Subgroup (G : Type u) [Group G] where
 variable {H : Subgroup G}
 
 namespace Subgroup
-------------------------------------------------------------
--- For any subgroup, we can form the *type* of its elements.
 instance instCoe : CoeOut (Subgroup G) (Type u) where
   coe H := Subtype H.uset
-------------------------------------------------------------
--- This allows the notation "a ∈ H", "∀ x ∈ H", and "∃ x ∈ H".
 instance instMembership : Membership G (Subgroup G) where
   mem H x := x ∈ H.uset
-------------------------------------------------------------
--- For `H : Subgroup G`, notation for `1 : H`, `x⁻¹ : H`, and `x * y ∈ H` is inherited from G.
 instance instOne: One H where
   one := Subtype.mk (1 : G) (Subgroup.one_mem' H)
 instance instInv: Inv H where

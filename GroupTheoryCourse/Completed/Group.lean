@@ -141,8 +141,7 @@ lemma reassoc_right_mul_inv (a b : G) : b * (b⁻¹ * a) = a := by
 macro "group" : tactic =>
   `(tactic| simp [mul_assoc, one_mul, mul_one, inv_one,
                   reassoc_right_inv_mul, reassoc_right_mul_inv,
-                  inv_mul, mul_inv, mul_inv_rev, inv_inv
-                  ])
+                  inv_mul, mul_inv, mul_inv_rev, inv_inv])
 ------------------------------------------------------------
 -- We can use our new tactic to blast away simple equalities:
 ------------------------------------------------------------
