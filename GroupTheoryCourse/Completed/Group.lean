@@ -1,14 +1,10 @@
+------------------------------------------------------------
 -- Groups
---
--- Definition of a group. A few basic group lemmas.
----------------------------------------------------
-
+------------------------------------------------------------
 import GroupTheoryCourse.Utils
 import GroupTheoryCourse.Prerequisites
---------------------------------------------------------------------------------
--- DEFINITION.
---------------
-/- A *Group* is a type G equipped with: -/
+
+/- DEFINITION. A *Group* is a type G equipped with: -/
 class Group (G : Type u) extends
   /- a binary operation,     * : G × G → G -/
     Mul G,
@@ -23,41 +19,22 @@ class Group (G : Type u) extends
     one_mul' (a : G) :              1 * a  =  a
   /- 3. a⁻¹ is a left inverse of a.    -/
     inv_mul' (a : G) :            a⁻¹ * a  =  1
-
-/- An *AddGroup* is just a group with additive symbols rather than multiplicative ones, i.e it is a
-   type G equipped with: -/
-class AddGroup (G : Type u) extends
-  /- a binary operation,     + : G × G → G -/
-    Add G,
-  /- an element,             0 : G         -/
-    Zero G,
-  /- an additive inverse, -[·] : G → G     -/
-    Neg G
-  where
-  /- 1. Addition is associative:   -/
-    add_assoc' (a b c : G) :  (a + b) + c  =  a + (b + c)
-  /- 2. 0 is a left identity:      -/
-    zero_add' (a : G) :              0 + a  =  a
-  /- 3. -a is a left inverse of a. -/
-    neg_add' (a : G) :              -a + a  =  0
-
----->>Notation<<----
+------------------------------------------------------------
+-- Notation:
 -- * The `mul` operation `* : G × G → G` is left-associative, so when we write `a * b * c`, we mean
 --   `(a * b) * c`.
 -- * Same as above, but for `+`.
----->>--------<<----
-
+------------------------------------------------------------
 namespace Group
-
+------------------------------------------------------------
 -- Throughout this chapter, let G and H be arbitrary groups:
+------------------------------------------------------------
 variable {G H} [Group G] [Group H]
-
+------------------------------------------------------------
 -- Group lemmas
 ---------------
-
 -- Mathematically important lemmas and theorems are presented in the following style:
 ------------------------------------------------------------
---              /- Description of lemma. -/
 --              lemma lemma_name
 --                (A₁ : T₁)    -- assumption 1
 --                ...
@@ -74,34 +51,29 @@ variable {G H} [Group G] [Group H]
 -- or
 --
 --         `h : x = y` <=====> "h is a proof that x = y"
-
+------------------------------------------------------------
 -- Group laws
 ------------------------------------------------------------
-/- multiplication is associative. -/
                 lemma mul_assoc
                   (a b c : G)
                 :--------------------------
                   a * b * c = a * (b * c)
   := Group.mul_assoc' a b c
 ------------------------------------------------------------
-                /-- 1 is a left identity. -/
                 lemma one_mul
                   (a : G)
                 :------------
                   1 * a = a
 := Group.one_mul' a
 ------------------------------------------------------------
-                /- Inverse left-cancellation. -/
                 lemma inv_mul
                   (a : G)
                 :--------------
                   a⁻¹ * a = 1
   := Group.inv_mul' a
 ------------------------------------------------------------
-
 -- Basic derived laws
 ------------------------------------------------------------
-                /- Inverse right-cancellation. -/
                 lemma mul_inv
                   (a : G)
                 :--------------
@@ -115,7 +87,6 @@ variable {G H} [Group G] [Group H]
           _       = a⁻¹⁻¹ * a⁻¹             := by rw [one_mul]
           _       = 1                       := by rw [inv_mul]
 ------------------------------------------------------------
-                /- 1 is a right identity. -/
                 lemma mul_one
                   (a : G)
                 :------------
@@ -126,7 +97,6 @@ variable {G H} [Group G] [Group H]
           _     = 1 * a         := by rw [mul_inv]
           _     = a             := by rw [one_mul]
 ------------------------------------------------------------
-                /- 1⁻¹ = 1 -/
                 lemma inv_one
                 :----------------
                   (1 : G)⁻¹ = 1
@@ -134,7 +104,6 @@ variable {G H} [Group G] [Group H]
     calc  (1 : G)⁻¹ = 1 * 1⁻¹ := by rw [one_mul]
           _         = 1       := by rw [mul_inv]
 ------------------------------------------------------------
-                /- a⁻¹⁻¹ = a -/
                 lemma inv_inv
                   (a : G)
                 :------------
@@ -146,7 +115,6 @@ variable {G H} [Group G] [Group H]
           _     = 1 * a             := by rw [inv_mul]
           _     = a                 := by rw [one_mul]
 ------------------------------------------------------------
-                /- (a * b)⁻¹ = b⁻¹ * a⁻¹ -/
                 lemma mul_inv_rev
                   (a b : G)
                 :------------------------
@@ -160,32 +128,31 @@ variable {G H} [Group G] [Group H]
           _         = 1 * (b⁻¹ * a⁻¹)                   := by rw [inv_mul]
           _         = b⁻¹ * a⁻¹                         := by rw [one_mul]
 ------------------------------------------------------------
-
 -- The "group tactic"
 ---------------------
 -- To make our lives easier, we'll define the `group` tactic to automate proofs that only require
 -- the repeated use of the above lemmas.
-
+------------------------------------------------------------
 lemma reassoc_right_inv_mul (a b : G) : b⁻¹ * (b * a) = a := by
   simp [←mul_assoc, inv_mul, one_mul]
 lemma reassoc_right_mul_inv (a b : G) : b * (b⁻¹ * a) = a := by
   simp [←mul_assoc, mul_inv, one_mul]
-
+------------------------------------------------------------
 macro "group" : tactic =>
   `(tactic| simp [mul_assoc, one_mul, mul_one, inv_one,
                   reassoc_right_inv_mul, reassoc_right_mul_inv,
                   inv_mul, mul_inv, mul_inv_rev, inv_inv
                   ])
-
+------------------------------------------------------------
 -- We can use our new tactic to blast away simple equalities:
+------------------------------------------------------------
 example (a b c d: G) : a * (b * b⁻¹) * c * (d * 1) * d⁻¹ * c⁻¹ * a⁻¹ = 1 :=
   by group
-
+------------------------------------------------------------
 -- More lemmas
 --------------
 -- These occasionally come in handy.
 ------------------------------------------------------------
-                /- The identity is unique. -/
                 lemma id_unique
                   (a b : G)
                   (h : a * b = b)
@@ -196,7 +163,6 @@ example (a b c d: G) : a * (b * b⁻¹) * c * (d * 1) * d⁻¹ * c⁻¹ * a⁻¹
         _ = b * b⁻¹     := by rw [h]
         _ = 1           := by group
 ------------------------------------------------------------
-                /- Inverses are unique. -/
                 lemma inv_unique
                   (a b : G)
                   (h : a * b = 1)
@@ -208,7 +174,6 @@ example (a b c d: G) : a * (b * b⁻¹) * c * (d * 1) * d⁻¹ * c⁻¹ * a⁻¹
         _ = a⁻¹ * 1       := by rw [h]
         _ = a⁻¹           := by group
 ------------------------------------------------------------
-                /- Left cancellation. -/
                 lemma mul_left_cancel
                   (a b c : G)
                   (h : a * b = a * c)
@@ -219,7 +184,6 @@ example (a b c d: G) : a * (b * b⁻¹) * c * (d * 1) * d⁻¹ * c⁻¹ * a⁻¹
         _ = a⁻¹ * (a * c) := by rw [h]
         _ = c             := by group
 ------------------------------------------------------------
-                /- Right cancellation. -/
                 lemma mul_right_cancel
                   (a b c : G)
                   (h : a * c = b * c)
