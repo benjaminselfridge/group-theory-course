@@ -30,116 +30,75 @@ instance : Inv (Set G) where
 -- Generalized associativity laws
 ---------------------------------
                 lemma elt_mul_elt_mul_set_assoc
-                  (g₁ g₂ : G)
-                  (A : Set G)
+                  (a b : G) (C : Set G)
                 :------------------------------
-                  g₁ * g₂ * A = g₁ * (g₂ * A)
-:= by
-  ext x; constructor <;> intro h
-  . have ⟨a, ha, hx⟩ := h
-    use g₂ * a; constructor
-    . use a
-    . rw [hx]; group
-  . have ⟨g₂a, hg₂a, hx⟩ := h
-    have ⟨a, ha, hg₂a⟩ := hg₂a
-    use a; constructor; exact ha
-    rw [hx, hg₂a]; group
-------------------------------------------------------------
-                lemma elt_mul_set_mul_elt_assoc
-                  (a b : G)
-                  (A : Set G)
-                :--------------
-                  a * A * b = a * (A * b)
+                  a * b * C = a * (b * C)
 := by
   ext x; constructor <;> intro hx
-  . have ⟨aa', ⟨a', ha', haa'⟩, hx⟩ := hx
-    rw [hx, haa']
-    use a' * b; constructor; use a'; group
-  . have ⟨a'b, ⟨a', ha', ha'b⟩, hx⟩ := hx
-    rw [hx, ha'b]
-    use a * a'; constructor; use a'; group
+  . have ⟨c, hc, hx⟩ := hx; rw [hx]; use b * c; constructor; use c; group;
+  . have ⟨bc, ⟨c, hc, hbc⟩, hx⟩ := hx; rw [hx, hbc]; use c; constructor; exact hc; group
+------------------------------------------------------------
+                lemma elt_mul_set_mul_elt_assoc
+                  (a : G) (B : Set G) (c : G)
+                :--------------
+                  a * B * c = a * (B * c)
+:= by
+  ext x; constructor <;> intro hx
+  . have ⟨ab, ⟨b, hb, hab⟩, hx⟩ := hx; rw [hx, hab]; use b * c; constructor; use b; group
+  . have ⟨bc, ⟨b, hb, hbc⟩, hx⟩ := hx; rw [hx, hbc]; use a * b; constructor; use b; group
+------------------------------------------------------------
+                lemma elt_mul_set_mul_set_assoc
+                  (a : G) (B C : Set G)
+                :----------------
+                  a * B * C = a * (B * C)
+:= by
+  ext x; constructor <;> intro hx
+  . have ⟨ab, ⟨b, hb, hab⟩, c, hc, hx⟩ := hx; rw [hx, hab]; use b * c; constructor; use b;
+      constructor; exact hb; use c; group
+  . have ⟨bc, ⟨b, hb, c, hc, hbc⟩, hx⟩ := hx; rw [hx, hbc]; use a * b; constructor; use b;
+      use c; constructor; exact hc; group
+------------------------------------------------------------
+                lemma set_mul_elt_mul_elt_assoc
+                  (A : Set G) (b c : G)
+                :--------------------------------
+                  A * b * c = A * (b * c)
+:= by
+  ext x; constructor <;> intro hx
+  . have ⟨ab, ⟨a, ha, hab⟩, hx⟩ := hx; rw [hx, hab]; use a; constructor; exact ha; group
+  . have ⟨a, ha, hx⟩ := hx; rw [hx]; use a * b; constructor; use a; group
+------------------------------------------------------------
+                lemma set_mul_elt_mul_set_assoc
+                  (A : Set G) (b : G) (C : Set G)
+                :---------------
+                  A * b * C = A * (b * C)
+:= by
+  ext x; constructor <;> intro hx
+  . have ⟨ab, ⟨a, ha, hab⟩, c, hc, hx⟩ := hx; rw [hx, hab]; use a; constructor; exact ha; use b * c;
+      constructor; use c; group
+  . have ⟨a, ha, bc, ⟨c, hc, hbc⟩, hx⟩ := hx; rw [hx, hbc]; use a * b; constructor; use a; use c;
+      constructor; exact hc; group
+------------------------------------------------------------
+                lemma set_mul_set_mul_elt_assoc
+                  (A B : Set G) (c : G)
+                :----------------
+                  A * B * c = A * (B * c)
+:= by
+  ext x; constructor <;> intro hx
+  . have ⟨ab, ⟨a, ha, b, hb, hab⟩, hx⟩ := hx; rw [hx, hab]; use a; constructor; exact ha; use b * c;
+      constructor; use b; group
+  . have ⟨a, ha, bc, ⟨b, hb, hbc⟩, hx⟩ := hx; rw [hx, hbc]; use a * b; constructor; use a;
+      constructor; exact ha; use b; group
 ------------------------------------------------------------
                 lemma set_mul_set_mul_set_assoc
                   (A B C : Set G)
                 :--------------------------
                   A * B * C = A * (B * C)
 := by
-  ext abc
-  constructor <;> intro h
-  . have ⟨ab, ⟨a, ha, b, hb, hab⟩, ⟨c, hc, habc⟩⟩ := h
-    use a; constructor
-    . exact ha
-    . use b * c; constructor
-      . use b; constructor
-        . exact hb
-        . use c
-      . rw [habc, hab]; group
-  . have ⟨a, ha, bc, ⟨b, hb, c, hc, hbc⟩, habc⟩ := h
-    use a * b; constructor
-    . use a; constructor
-      . exact ha
-      . use b
-    . use c; constructor
-      . exact hc
-      . rw [habc, hbc]; group
-------------------------------------------------------------
-                lemma set_mul_elt_mul_elt_assoc
-                  (g₁ g₂ : G)
-                  (A : Set G)
-                :--------------------------------
-                  A * g₁ * g₂ = A * (g₁ * g₂)
-:= by
-  ext x; constructor <;> intro h
-  . have ⟨ag₁, hag₁, hx⟩ := h
-    have ⟨a, ha, hag₁⟩ := hag₁
-    rw [hx, hag₁]
-    use a; constructor; exact ha; group
-  . have ⟨a, ha, hx⟩ := h
-    use a * g₁; constructor
-    . use a
-    . rw [hx]; group
-------------------------------------------------------------
-                lemma set_mul_set_mul_elt_assoc
-                  (a : G)
-                  (A B : Set G)
-                :----------------
-                  A * B * a = A * (B * a)
-:= by
   ext x; constructor <;> intro hx
-  . have ⟨a'b, ⟨a', ha', b, hb, ha'b⟩, hx⟩ := hx
-    rw [hx, ha'b]
-    use a'; constructor; exact ha'; use b * a; constructor; use b; group
-  . have ⟨a', ha', ba, ⟨b, hb, hba⟩, hx⟩ := hx
-    rw [hx, hba]
-    use a' * b; constructor; use a'; constructor; exact ha'; use b; group
-------------------------------------------------------------
-                lemma elt_mul_set_mul_set_assoc
-                  (a : G)
-                  (A B : Set G)
-                :----------------
-                  a * A * B = a * (A * B)
-:= by
-  ext x; constructor <;> intro hx
-  . have ⟨aa', ⟨a', ha', haa'⟩, b, hb, hx⟩ := hx
-    rw [hx, haa']
-    use a' * b; constructor; use a'; constructor; exact ha'; use b; group
-  . have ⟨a'b, ⟨a', ha', b, hb, ha'b⟩, hx⟩ := hx
-    rw [hx, ha'b]
-    use a * a'; constructor; use a'; use b; constructor; exact hb; group
-------------------------------------------------------------
-                lemma set_mul_elt_mul_set_assoc
-                  (a : G)
-                  (A B : Set G)
-                :---------------
-                  A * a * B = A * (a * B)
-:= by
-  ext x; constructor <;> intro hx
-  . have ⟨a'a, ⟨a', ha', ha'a⟩, b, hb, hx⟩ := hx
-    rw [hx, ha'a]
-    use a'; constructor; exact ha'; use a * b; constructor; use b; group
-  . have ⟨a', ha', ab, ⟨b, hb, hab⟩, hx⟩ := hx
-    rw [hx, hab]
-    use a' * a; constructor; use a'; use b; constructor; exact hb; group
+  . have ⟨ab, ⟨a, ha, b, hb, hab⟩, c, hc, hx⟩ := hx; rw [hx, hab]; use a; constructor; exact ha;
+      use b * c; constructor; use b; constructor; exact hb; use c; group
+  . have ⟨a, ha, bc, ⟨b, hb, c, hc, hbc⟩, hx⟩ := hx; rw [hx, hbc]; use a * b; constructor; use a;
+      constructor; exact ha; use b; use c; constructor; exact hc; group
 ------------------------------------------------------------
 -- Generalized identity laws
 ----------------------------
@@ -148,22 +107,18 @@ instance : Inv (Set G) where
                 :------------------
                   (1 : G) * A = A
 := by
-  ext x
-  constructor <;> intro h
-  . have ⟨a, ha, hx⟩ := h
-    rw [hx]; group; exact ha
-  . use x; group; exact h
+  ext x; constructor <;> intro hx
+  . have ⟨a, ha, hx⟩ := hx; rw [hx]; group; exact ha
+  . use x; constructor; exact hx; group
 ------------------------------------------------------------
                 lemma set_mul_one
                   (A : Set G)
                 :------------------
                   A * (1 : G) = A
 := by
-  ext x
-  constructor <;> intro h
-  . have ⟨a, ha, hx⟩ := h
-    rw [hx]; group; exact ha
-  . use x; group; exact h
+  ext x; constructor <;> intro hx
+  . have ⟨a, ha, hx⟩ := hx; rw [hx]; group; exact ha
+  . use x; constructor; exact hx; group
 ------------------------------------------------------------
 -- Generalized inversion laws
 -----------------------------
@@ -498,13 +453,10 @@ def normalizer (N : Subgroup G) : Set G :=
 def Normalizer (N : Subgroup G) : Subgroup G := by
   apply Subgroup.mk (normalizer N)
   . intro a b ha hb
-    dsimp [normalizer]
     calc  a * b * N.uset * (a * b)⁻¹  = a * (b * N.uset * b⁻¹) * a⁻¹ := by group_subset
           _                           = N.uset := by rw [hb, ha]
-  . dsimp [normalizer]
-    group_subset
+  . dsimp [normalizer]; group_subset
   . intro a ha
-    show a⁻¹ * N.uset * a⁻¹⁻¹ = N.uset
     calc  a⁻¹ * N.uset * a⁻¹⁻¹  = a⁻¹ * (a * N.uset * a⁻¹) * a⁻¹⁻¹ := by rw [ha]
           _                     = N.uset := by group_subset
 ------------------------------------------------------------
