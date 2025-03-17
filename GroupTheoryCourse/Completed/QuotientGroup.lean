@@ -31,7 +31,7 @@ instance : Inv (Set G) where
 ---------------------------------
                 lemma elt_mul_elt_mul_set_assoc
                   (a b : G) (C : Set G)
-                :------------------------------
+                :--------------------------
                   a * b * C = a * (b * C)
 := by
   ext x; constructor <;> intro hx
@@ -40,7 +40,7 @@ instance : Inv (Set G) where
 ------------------------------------------------------------
                 lemma elt_mul_set_mul_elt_assoc
                   (a : G) (B : Set G) (c : G)
-                :--------------
+                :------------------------------
                   a * B * c = a * (B * c)
 := by
   ext x; constructor <;> intro hx
@@ -49,7 +49,7 @@ instance : Inv (Set G) where
 ------------------------------------------------------------
                 lemma elt_mul_set_mul_set_assoc
                   (a : G) (B C : Set G)
-                :----------------
+                :--------------------------
                   a * B * C = a * (B * C)
 := by
   ext x; constructor <;> intro hx
@@ -60,7 +60,7 @@ instance : Inv (Set G) where
 ------------------------------------------------------------
                 lemma set_mul_elt_mul_elt_assoc
                   (A : Set G) (b c : G)
-                :--------------------------------
+                :--------------------------
                   A * b * c = A * (b * c)
 := by
   ext x; constructor <;> intro hx
@@ -69,7 +69,7 @@ instance : Inv (Set G) where
 ------------------------------------------------------------
                 lemma set_mul_elt_mul_set_assoc
                   (A : Set G) (b : G) (C : Set G)
-                :---------------
+                :----------------------------------
                   A * b * C = A * (b * C)
 := by
   ext x; constructor <;> intro hx
@@ -80,7 +80,7 @@ instance : Inv (Set G) where
 ------------------------------------------------------------
                 lemma set_mul_set_mul_elt_assoc
                   (A B : Set G) (c : G)
-                :----------------
+                :--------------------------
                   A * B * c = A * (B * c)
 := by
   ext x; constructor <;> intro hx
@@ -122,6 +122,35 @@ instance : Inv (Set G) where
 ------------------------------------------------------------
 -- Generalized inversion laws
 -----------------------------
+                lemma inv_elt_mul_set
+                  (A : Set G)
+                  (a : G)
+                :------------------------
+                  (a * A)⁻¹ = A⁻¹ * a⁻¹
+:= by
+  ext x; constructor <;> intro hx
+  . have ⟨na', ⟨a', ha', hna'⟩, hx⟩ := hx
+    rw [hx, hna']
+    group
+    use a'⁻¹; constructor; use a'; rfl
+  . have ⟨a'_inv, ⟨a', ha', ha'_inv⟩, hx⟩ := hx
+    rw [hx, ha'_inv]
+    use a * a'; constructor; use a'; group
+------------------------------------------------------------
+                lemma inv_set_mul_elt
+                  (A : Set G)
+                  (a : G)
+                :------------------------
+                  (A * a)⁻¹ = a⁻¹ * A⁻¹
+:= by
+  ext x; constructor <;> intro hx
+  . have ⟨a'a, ⟨a', ha', ha'a⟩, hx⟩ := hx
+    rw [hx, ha'a]
+    use a'⁻¹; constructor; use a'; group
+  . have ⟨a'_inv, ⟨a', ha', ha'_inv⟩, hx⟩ := hx
+    rw [hx, ha'_inv]
+    use a' * a; constructor; use a'; group
+------------------------------------------------------------
                 lemma inv_set_mul_set
                   (A B : Set G)
                 :------------------------
@@ -144,41 +173,12 @@ instance : Inv (Set G) where
     rw [hx, ha_inv]; group; exact ha
   . use x⁻¹; constructor; use x; group
 ------------------------------------------------------------
-                lemma inv_elt_mul_set
-                  (A : Set G)
-                  (a : G)
-                :----------
-                  (a * A)⁻¹ = A⁻¹ * a⁻¹
-:= by
-  ext x; constructor <;> intro hx
-  . have ⟨na', ⟨a', ha', hna'⟩, hx⟩ := hx
-    rw [hx, hna']
-    group
-    use a'⁻¹; constructor; use a'; rfl
-  . have ⟨a'_inv, ⟨a', ha', ha'_inv⟩, hx⟩ := hx
-    rw [hx, ha'_inv]
-    use a * a'; constructor; use a'; group
-------------------------------------------------------------
-                lemma inv_set_mul_elt
-                  (A : Set G)
-                  (a : G)
-                :-------------------
-                  (A * a)⁻¹ = a⁻¹ * A⁻¹
-:= by
-  ext x; constructor <;> intro hx
-  . have ⟨a'a, ⟨a', ha', ha'a⟩, hx⟩ := hx
-    rw [hx, ha'a]
-    use a'⁻¹; constructor; use a'; group
-  . have ⟨a'_inv, ⟨a', ha', ha'_inv⟩, hx⟩ := hx
-    rw [hx, ha'_inv]
-    use a' * a; constructor; use a'; group
-------------------------------------------------------------
 -- Subgroup laws
 ----------------
                 lemma elt_mul_subgroup
                   (N : Subgroup G)
                   (n : G) (hn : n ∈ N)
-                :----------------------------
+                :-----------------------
                   n * N.uset = N.uset
 := by
   ext x; constructor <;> intro hx
@@ -212,7 +212,7 @@ instance : Inv (Set G) where
 ------------------------------------------------------------
                 lemma inv_subgroup
                   (N : Subgroup G)
-                :-------------------
+                :--------------------
                   N.uset⁻¹ = N.uset
 := by
   ext x; constructor <;> intro hx;
@@ -246,7 +246,7 @@ instance : Inv (Set G) where
                 lemma reassoc_right_subgroup_mul_self_mul_elt
                   (N : Subgroup G)
                   (a : G)
-                :--------------
+                :-------------------------------------
                   N.uset * (N.uset * a) = N.uset * a
 := by rw [←set_mul_set_mul_elt_assoc, subgroup_mul_self]
 ------------------------------------------------------------
@@ -275,11 +275,13 @@ macro "group_subset" : tactic =>
 -- Cosets
 ---------
 --
--- The above definitions and lemmas suggest a group-like structure on the subsets of G.
+-- The above definitions and lemmas suggest a group-like structure on the subsets of G. Is it
+-- possible to form an actual group, whose elements are subsets of G, with multiplication and
+-- inverse as defined above?
 --
 -- Let Γ = {Γᵢ}ᵢ be some collection of nonempty subsets of G; furthermore, suppose that the elements
--- of Γ are closed under multiplication and inversion as defined above, and that those operations
--- satisfy the group laws, thus making Γ a group.
+-- of Γ are closed under multiplication and inversion, and that those operations satisfy the group
+-- laws.
 --
 -- Since Γ is a group, it must have an identity element N ∈ Γ satisfying
 --
@@ -289,18 +291,18 @@ macro "group_subset" : tactic =>
 --
 --   (1 : G) ∈ N
 --
--- (this is left as an exercise). Therefore, N must be a *subgroup* of G. Furthermore, by the group
--- laws, it must be the case that
+-- (this is left as an exercise). Therefore, N must be a *subgroup* of G. Furthermore, it must be
+-- the case that
 --
---   A * N  =  A  =  N * A
+--   A * N = A = N * A
 --
 -- and
 --
---   A⁻¹ * A = A * A⁻¹ = N
+--   A⁻¹ * A = N = A * A⁻¹
 --
 -- for all A ∈ Γ.
 --
--- Given a subgroup N of G, any A : Set G satisfying the above laws will be called a *coset* of N:
+-- Given N : Subgroup G, any A : Set G satisfying the above laws will be called a *coset* of N:
 ------------------------------------------------------------
 /- DEFINITION. A coset of a subgroup N is -/
 structure Coset (N : Subgroup G) where
@@ -310,9 +312,11 @@ structure Coset (N : Subgroup G) where
   /- satisfying:
        1) A must be nonempty -/
   is_nonempty : ∃ a, a ∈ uset
+
   /-   2) A must satisfy A * N = A and N * A = A -/
   mul_subgroup : uset * N.uset = uset
   subgroup_mul : N.uset * uset = uset
+
   /-   3) A must satisfy A * A⁻¹ = N and A⁻¹ * A = N -/
   mul_inv : uset * uset⁻¹ = N.uset
   inv_mul : uset⁻¹ * uset = N.uset
@@ -340,8 +344,8 @@ instance instMul : Mul (Coset N) where
     . have ⟨a, ha⟩ := A.is_nonempty
       have ⟨b, hb⟩ := B.is_nonempty
       use a * b; use a; constructor; exact ha; use b
-    . calc  A.uset * B.uset * N.uset  = A.uset * (B.uset * N.uset) := by group_subset
-            _                         = A.uset * B.uset := by rw [B.mul_subgroup]
+    . calc  A.uset * B.uset * N.uset  = A.uset * (B.uset * N.uset)  := by group_subset
+            _                         = A.uset * B.uset             := by rw [B.mul_subgroup]
     . calc  N.uset * (A.uset * B.uset)
             = N.uset * A.uset * B.uset  := by group_subset
           _ = A.uset * B.uset           := by rw [A.subgroup_mul]
@@ -390,7 +394,7 @@ instance instGroup : Group (Coset N) where
 ------------------------------------------------------------
                 theorem Coset_elt_conj_subgroup
                   (A : Coset N) (a : G) (ha : a ∈ A.uset)
-                :-------------------------------------
+                :------------------------------------------
                   a * N.uset * a⁻¹ = N.uset
 := by
   ext x; constructor <;> intro hx
@@ -460,6 +464,87 @@ def Normalizer (N : Subgroup G) : Subgroup G := by
     calc  a⁻¹ * N.uset * a⁻¹⁻¹  = a⁻¹ * (a * N.uset * a⁻¹) * a⁻¹⁻¹ := by rw [ha]
           _                     = N.uset := by group_subset
 ------------------------------------------------------------
+-- Now, let N : Subgroup G, and let a ∈ Normalizer N. Then the set a * N forms a coset:
+------------------------------------------------------------
+                def left_coset
+                  (a : G) (ha : a ∈ Normalizer N)
+                :---------------------------
+                  Coset N
+:= by
+  have ha: a * N.uset * a⁻¹ = N.uset := ha
+  apply Coset.mk (a * N.uset)
+  . use a; use 1; constructor; apply Subgroup.one_mem; group
+  . group_subset
+  . ext x; constructor <;> intro hx
+    . have ⟨n₁, hn₁, an₂, ⟨n₂, hn₂, han₂⟩, hx⟩ := hx
+      rw [hx, han₂]; use (a⁻¹ * n₁ * a) * n₂; constructor
+      . rw [←ha] at hn₁;
+        apply Subgroup.mul_mem
+        . have ⟨an₁', ⟨n₁', hn₁', han₁'⟩, hn₁⟩ := hn₁
+          rw [hn₁, han₁']; group; exact hn₁'
+        . exact hn₂
+      . group
+    . have ⟨n, hn, hx⟩ := hx
+      rw [hx]; use 1; constructor; apply Subgroup.one_mem; use a * n; constructor; use n; group
+  . calc  a * N.uset * (a * N.uset)⁻¹ = a * N.uset * a⁻¹ := by group_subset
+          _                           = N.uset := ha
+  . group_subset
+------------------------------------------------------------
+-- Now, if a ∈ (A : Coset N), then we know a ∈ Normalizer N:
+------------------------------------------------------------
+                lemma mem_normalizer_of_mem_coset
+                  (A : Coset N) (a : G) (ha : a ∈ A.uset)
+                :------------------------------------------
+                  a ∈ normalizer N
+:= by
+  dsimp [normalizer]
+  ext x; constructor <;> intro hx
+  . have ⟨an, ⟨n, hn, han⟩, hx⟩ := hx
+    rw [hx, han]
+    have : A.uset * N.uset * A.uset⁻¹ = N.uset := by
+      calc  A.uset * N.uset * A.uset⁻¹  = (A * 1 * A⁻¹).uset := by definition
+            _                           = N.uset := by group; definition
+    rw [←this]; use a; constructor; use a; constructor; exact ha; use 1; constructor;
+      apply Subgroup.one_mem; group; use n * a⁻¹; constructor; use a * n⁻¹; constructor;
+      have: A.uset * N.uset = A.uset := by
+        calc  A.uset * N.uset = (A * 1).uset := by definition
+              _               = A.uset := by group
+    rw [←this]; use a; constructor; exact ha; use n⁻¹; constructor; apply Subgroup.inv_mem;
+      exact hn; rfl; group; group
+  . use a * (a⁻¹ * x * a) ; constructor; use a⁻¹ * x * a; constructor;
+    . have: A.uset⁻¹ * N.uset * A.uset = N.uset := by
+        calc  A.uset⁻¹ * N.uset * A.uset = (A⁻¹ * 1 * A).uset := by definition
+              _                           = N.uset := by group; definition
+      rw [←this]; use a⁻¹ * x; constructor; use a⁻¹; constructor; use a; use x; use a
+    group; group
+
+------------------------------------------------------------
+-- Furthermore, if A : Coset N with a ∈ A, then A = left_coset a N:
+------------------------------------------------------------
+                theorem Coset_is_left_coset
+                  (A : Coset N)
+                  (a : G) (ha : a ∈ A.uset)
+                :----------------------------------
+                  A = left_coset a (mem_normalizer_of_mem_coset A a ha)
+:= by
+  apply Coset_eq; ext x; constructor <;> intro hx
+  . dsimp [left_coset]; use a⁻¹ * x; constructor;
+    . have : A.uset⁻¹ * A.uset = N.uset := by
+        calc  A.uset⁻¹ * A.uset = (A⁻¹ * A).uset := by definition
+              _                 = N.uset := by rw [Group.inv_mul]; definition
+      rw [←this]; use a⁻¹; constructor; use a; use x
+    . group
+  . dsimp [left_coset] at hx;
+    have ⟨n, hn, hx⟩ := hx
+    rw [hx]
+    have : A.uset * N.uset = A.uset := by
+      calc  A.uset * N.uset = (A * 1).uset := by definition
+            _               = A.uset := by rw [Group.mul_one]
+    rw [←this]; use a; constructor; exact ha; use n
+------------------------------------------------------------
+-- The reverse does not hold: if a ∈ A, then left_coset a N is not necessarily a coset.
+------------------------------------------------------------
+
 namespace Exercises
 
 -- Exercise 1.
