@@ -194,9 +194,156 @@ example (a b c d: G) : a * (b * b⁻¹) * c * (d * 1) * d⁻¹ * c⁻¹ * a⁻¹
         _ = b           := by group
 ------------------------------------------------------------
 namespace Exercises
-
+------------------------------------------------------------
 -- Exercise 1.
+--------------
 -- Fill in all of the `sorry`s in this file.
+------------------------------------------------------------
+-- Exercise 2 (Lang, pg. 8).
+----------------------------
+-- Let G be a group and S a nonempty set.
+-- Define an Indexing of G by S to be a function S → G.
+------------------------------------------------------------
+structure Indexing (G : Type u) [Group G] (S : Type v) where
+  of : S → G
 
+namespace Indexing
+variable {S}
+
+                @[ext]
+                lemma ext
+                  (f g : Indexing G S)
+                  (h : ∀ s : S, f.of s = g.of s)
+                :------
+                  f = g
+:= by
+  show Indexing.mk f.of = Indexing.mk g.of
+  simp; ext x; exact h x
+------------------------------------------------------------
+-- Define sensible Mul, One, and Inv instances for Indexing G S.
+------------------------------------------------------------
+instance instMul : Mul (Indexing G S) where
+  mul f g := ⟨fun s : S => f.of s * g.of s⟩
+
+instance instOne : One (Indexing G S) where
+  one := ⟨fun _ => 1⟩
+
+instance instInv : Inv (Indexing G S) where
+  inv f := ⟨fun s : S => (f.of s)⁻¹⟩
+------------------------------------------------------------
+-- Show that Indexing G S forms a group.
+------------------------------------------------------------
+instance instGroup : Group (Indexing G S) where
+  mul_assoc' f g h := by
+    ext s
+    calc  (f * g * h).of s  = f.of s * g.of s * h.of s := by definition
+          _                 = f.of s * (g.of s * h.of s) := by group
+          _                 = (f * (g * h)).of s := by definition
+  one_mul' f := by
+    ext s
+    calc  (1 * f).of s  = 1 * f.of s := by definition
+          _             = f.of s := by group
+  inv_mul' f := by
+    ext s
+    calc  (f⁻¹ * f).of s  = (f.of s)⁻¹ * f.of s := by definition
+          _               = 1 := by group
+          _               = of 1 s := by definition
+------------------------------------------------------------
+end Indexing
+------------------------------------------------------------
+-- Exercise 3.
+-- Let A be any type. Define a Permutation of A to be a bijection A → A.
+------------------------------------------------------------
+structure Perm (A : Type u) where
+  map : A → A
+  inv : A → A
+  map_inv : map ∘ inv = id
+  inv_map : inv ∘ map = id
+
+namespace Perm
+variable {A}
+
+                @[ext]
+                lemma ext
+                  (σ ρ : Perm A)
+                  (h : ∀ x : A, σ.map x = ρ.map x)
+                :-----------------------------------
+                  σ = ρ
+:= by
+  show Perm.mk _ _ _ _ = Perm.mk _ _ _ _
+  simp; constructor
+  . ext x; exact h x
+  . ext x
+    calc  σ.inv x = (σ.inv ∘ id) x := by definition
+          _       = (σ.inv ∘ (ρ.map ∘ ρ.inv)) x := by rw [ρ.map_inv]
+          _       = σ.inv (ρ.map (ρ.inv x)) := by definition
+          _       = σ.inv (σ.map (ρ.inv x)) := by rw [h]
+          _       = (σ.inv ∘ σ.map) (ρ.inv x) := by definition
+          _       = id (ρ.inv x) := by rw [σ.inv_map]
+          _       = ρ.inv x := by definition
+
+
+instance instFunLike : FunLike (Perm A) A A where
+  coe σ := σ.map
+  coe_injective' := by intro σ₁ σ₂ h; simp at h; ext x; rw [h]
+
+------------------------------------------------------------
+-- Define sensible Mul, One, and Inv instances for Perm A.
+------------------------------------------------------------
+instance instMul : Mul (Perm A) where
+  mul σ ρ := by
+    apply Perm.mk (σ.map ∘ ρ.map) (ρ.inv ∘ σ.inv)
+    . ext x
+      calc  ((σ.map ∘ ρ.map) ∘ ρ.inv ∘ σ.inv) x = σ.map ((ρ.map ∘ ρ.inv) (σ.inv x)) := by definition
+            _                                   = σ.map (id (σ.inv x)) := by rw [ρ.map_inv]
+            _                                   = (σ.map ∘ σ.inv) x := by definition
+            _                                   = id x := by rw [σ.map_inv]
+    . ext x
+      calc  ((ρ.inv ∘ σ.inv) ∘ σ.map ∘ ρ.map) x = ρ.inv ((σ.inv ∘ σ.map) (ρ.map x)) := by definition
+            _                                   = ρ.inv (id (ρ.map x)) := by rw [σ.inv_map]
+            _                                   = (ρ.inv ∘ ρ.map) x := by definition
+            _                                   = id x := by rw [ρ.inv_map]
+
+instance instOne : One (Perm A) where
+  one := ⟨id, id, by ext; simp, by ext; simp⟩
+
+instance instInv : Inv (Perm A) where
+  inv σ := Perm.mk σ.inv σ.map σ.inv_map σ.map_inv
+
+------------------------------------------------------------
+-- Show that Perm A forms a group.
+------------------------------------------------------------
+
+instance instGroup : Group (Perm A) where
+  mul_assoc' ρ σ τ := by ext; definition
+  one_mul' σ := by ext; definition
+  inv_mul' σ := by ext x; show (σ.inv ∘ σ.map) x = id x; rw [inv_map]
+
+end Perm
+
+------------------------------------------------------------
+-- Exercise 4. (Finite cyclic groups)
+------------------------------
+-- Define Z n as follows:
+------------------------------------------------------------
+
+inductive Cyc (n : ℕ) where
+  | mk : Fin n → Cyc n
+deriving DecidableEq
+
+namespace Cyc
+variable {n : ℕ}
+
+instance instMul : Mul (Cyc n) where
+  mul x y :=
+  match (x, y) with
+  | (⟨a, ha⟩, ⟨b, hb⟩) => Cyc.mk (Fin.mk
+      (if a + b < n then a + b else a + b - n)
+      (by split; assumption
+          sorry))
+
+end Cyc
+
+------------------------------------------------------------
 end Exercises
 end Group

@@ -1,7 +1,7 @@
 ------------------------------------------------------------
 -- Subgroups
 ------------------------------------------------------------
-import GroupTheoryCourse.Group
+import GroupTheoryCourse.Completed.Group
 import Mathlib.Data.Set.Basic
 import Mathlib.Data.Set.SymmDiff
 ------------------------------------------------------------
@@ -28,10 +28,9 @@ structure Subgroup (G : Type u) [Group G] where
 variable {H : Subgroup G}
 
 namespace Subgroup
+
 instance instCoe : CoeOut (Subgroup G) (Type u) where
   coe H := Subtype H.uset
-instance instMembership : Membership G (Subgroup G) where
-  mem H x := x ∈ H.uset
 instance instOne: One H where
   one := Subtype.mk (1 : G) (Subgroup.one_mem' H)
 instance instInv: Inv H where
@@ -44,25 +43,25 @@ instance instMul: Mul H where
                 /- A subgroup is closed under multiplication -/
                 lemma mul_mem
                   (a b : G)
-                  (ha : a ∈ H)
-                  (hb : b ∈ H)
+                  (ha : a ∈ H.uset)
+                  (hb : b ∈ H.uset)
                 :---------------
-                  a * b ∈ H
+                  a * b ∈ H.uset
   :=
   H.mul_mem' a b ha hb
 ------------------------------------------------------------
                 /- A subgroup contains the identity -/
                 lemma one_mem
                 :--------
-                  1 ∈ H
+                  1 ∈ H.uset
   := H.one_mem'
 ------------------------------------------------------------
                 /- A subgroup is closed under inversion -/
                 lemma inv_mem
                   (a : G)
-                  (ha : a ∈ H)
+                  (ha : a ∈ H.uset)
                 :---------------
-                  a⁻¹ ∈ H
+                  a⁻¹ ∈ H.uset
   :=
   H.inv_mem' a ha
 ------------------------------------------------------------
